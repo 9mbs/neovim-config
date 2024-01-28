@@ -55,21 +55,22 @@ require('lazy').setup({
 
 local lspconfig = require('lspconfig')
 
--- Configure the gopls server
-lspconfig.gopls.setup({
-	on_attach = function(client, bufnr) 
-		-- Enable completion triggered by <ctrl-x><ctrl-o>
-		vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-		-- Key mappings for LSP functions 
-		local opts = { noremap=true, silent=true }
-		vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-		vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-		vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>rn', '<Cmd>lua vim.lsp.buf.rename()<CR>', opts)
-		
-		-- Add more keybindings as needed
-
-		-- TODO: Setup autocompletion with `nvim-cmp` or another completion plugi
-	end
-
-})
+-- Configure servers
+lspconfig.gopls.setup{}
+lspconfig.tsserver.setup{}
+lspconfig.eslint.setup{}
+lspconfig.cssls.setup{}
+lspconfig.bashls.setup{}
+lspconfig.dockerls.setup{}
+lspconfig.grammarly.setup{}
+lspconfig.html.setup{}
+lspconfig.htmx.setup{}
+lspconfig.jsonls.setup{}
+lspconfig.remark_ls.setup{}
+lspconfig.mdx_analyzer.setup{}
+lspconfig.prismals.setup{}
+lspconfig.jedi_language_server.setup{} -- python?
+lspconfig.sqlls.setup{}
+lspconfig.tailwindcss.setup{}
+lspconfig.yamlls.setup{}
+lspconfig.stylelint_lsp.setup{}
