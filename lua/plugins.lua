@@ -13,6 +13,35 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local lsp_servers = {
+	"gopls",
+	"tsserver",
+	"eslint",
+	"cssls",
+	"bashls",
+	"dockerls",
+	"grammarly",
+	"html",
+	"htmx",
+	"jsonls",
+	"remark_ls",
+	"mdx_analyzer",
+	"prismals",
+	"jedi_language_server",
+	"sqlls",
+	"tailwindcss",
+	"yamlls",
+	"stylelint_lsp",
+	"lua_ls"
+}
+
+local function configure_mason()
+	require("mason").setup()
+	require("mason-lspconfig").setup {
+		ensure_installed = servers
+	}
+end
+
 -- https://github.com/williamboman/mason-lspconfig.nvim?tab=readme-ov-file#available-lsp-servers
 require('lazy').setup({
 	{
@@ -20,32 +49,7 @@ require('lazy').setup({
 		dependencies = {
 			{
 				'williamboman/mason.nvim', 
-				config = function()
-					require("mason").setup()
-					local servers = {
-						"gopls",
-						"tsserver",
-						"eslint",
-						"cssls",
-						"bashls",
-						"dockerls",
-						"grammarly",
-						"html",
-						"htmx",
-						"jsonls",
-						"remark_ls",
-						"mdx_analyzer",
-						"prismals",
-						"jedi_language_server",
-						"sqlls",
-						"tailwindcss",
-						"yamlls",
-						"stylelint_lsp"
-					}
-					require("mason-lspconfig").setup {
-						ensure_installed = servers
-					}		
-				end
+				config = configure_mason
 			},
 			'williamboman/mason-lspconfig.nvim',
 			'folke/neodev.nvim'
@@ -53,24 +57,11 @@ require('lazy').setup({
 	}
 })
 
+-- LSP Server Configuration
 local lspconfig = require('lspconfig')
 
--- Configure servers
-lspconfig.gopls.setup{}
-lspconfig.tsserver.setup{}
-lspconfig.eslint.setup{}
-lspconfig.cssls.setup{}
-lspconfig.bashls.setup{}
-lspconfig.dockerls.setup{}
-lspconfig.grammarly.setup{}
-lspconfig.html.setup{}
-lspconfig.htmx.setup{}
-lspconfig.jsonls.setup{}
-lspconfig.remark_ls.setup{}
-lspconfig.mdx_analyzer.setup{}
-lspconfig.prismals.setup{}
-lspconfig.jedi_language_server.setup{} -- python?
-lspconfig.sqlls.setup{}
-lspconfig.tailwindcss.setup{}
-lspconfig.yamlls.setup{}
-lspconfig.stylelint_lsp.setup{}
+-- Configure each LSP Server
+for _, server in ipairs(lsp_servers) do
+	lspconfig[server].setup{}
+end
+
