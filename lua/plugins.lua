@@ -13,6 +13,7 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- https://github.com/williamboman/mason-lspconfig.nvim?tab=readme-ov-file#available-lsp-servers
 local lsp_servers = {
 	"gopls",
 	"tsserver",
@@ -20,11 +21,9 @@ local lsp_servers = {
 	"cssls",
 	"bashls",
 	"dockerls",
-	"grammarly",
 	"html",
 	"htmx",
 	"jsonls",
-	"remark_ls",
 	"mdx_analyzer",
 	"prismals",
 	"jedi_language_server",
@@ -41,6 +40,11 @@ local function configure_mason()
 	require("mason-lspconfig").setup {
 		ensure_installed = lsp_servers
 	}
+end
+
+-- laspsaga config
+local function configure_lspsaga()
+	require('lspsaga').setup {}
 end
 
 -- nvim-treesitter
@@ -104,8 +108,6 @@ local function configure_nvim_tree()
 	require('nvim-tree').setup {}
 end
 
-
--- https://github.com/williamboman/mason-lspconfig.nvim?tab=readme-ov-file#available-lsp-servers
 require('lazy').setup({
 	{
 		'neovim/nvim-lspconfig',
@@ -126,7 +128,11 @@ require('lazy').setup({
 				'kyazdani42/nvim-tree.lua',
 				requires = 'kyazdani42/nvim-web-devicons',
 				config = configure_nvim_tree
-			}
+			},
+			{
+     				'nvimdev/lspsaga.nvim',
+        			config = configure_lspsaga
+      			}
 		},
 	}
 })
