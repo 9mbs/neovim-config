@@ -1,42 +1,4 @@
----- General Neovim & Vim settings
-
--- Show line numbers
-vim.opt.number = true
-
--- Show relative line numbers
-vim.opt.relativenumber = true
-
--- Disable netrw 
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-
--- Enable 24-bit color
-vim.opt.termguicolors = true
-
--- Set the leader key to spacebar
-vim.g.mapleader = ' ' 
-
--- Show line numbers
-vim.opt.number = true
-
--- Show relative line numbers
-vim.opt.relativenumber = true
-
--- Disable netrw 
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-
--- Enable 24-bit color
-vim.opt.termguicolors = true
-
--- Set the leader key to spacebar
-vim.g.mapleader = ' '
-
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+require('options')
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -68,16 +30,13 @@ require('lazy').setup({
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
 
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
-
   {
     -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       { 'williamboman/mason.nvim', config = true },
-      'williamboman/mason-lspconfig.nvim',
+      --'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -166,12 +125,6 @@ require('lazy').setup({
           gs.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
         end, { desc = 'reset git hunk' })
         -- normal mode
-        map('n', '<leader>hs', gs.stage_hunk, { desc = 'git stage hunk' })
-        map('n', '<leader>hr', gs.reset_hunk, { desc = 'git reset hunk' })
-        map('n', '<leader>hS', gs.stage_buffer, { desc = 'git Stage buffer' })
-        map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
-        map('n', '<leader>hR', gs.reset_buffer, { desc = 'git Reset buffer' })
-        map('n', '<leader>hp', gs.preview_hunk, { desc = 'preview git hunk' })
         map('n', '<leader>hb', function()
           gs.blame_line { full = false }
         end, { desc = 'git blame line' })
@@ -184,25 +137,9 @@ require('lazy').setup({
         map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
         map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
 
-        -- Text object
-        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
       end,
     },
   },
-
-  --{
-    -- Theme inspired by Atom
-    --'navarasu/onedark.nvim',
-    --priority = 1000,
-    --lazy = false,
-    --config = function()
-     -- require('onedark').setup {
-     --   -- Set a style preset. 'dark' is default.
-    --    style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
-   --   }
-   --   require('onedark').load()
-  --  end,
-  -- },
 
   {
     -- Set lualine as statusline
@@ -383,12 +320,13 @@ end
 vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 
 -- See `:help telescope.builtin`
+-- HEY! You need `ripgrep` installed on your machine for Telescope to query file contents
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
+   winblend = 10,
     previewer = false,
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
@@ -420,8 +358,8 @@ require('nvim-treesitter.configs').setup {
     ensure_installed = {
       'go',
       'lua',
-      'python',
-      'rust',
+      --'python',
+      --'rust',
       'tsx',
       'javascript',
       'typescript',
@@ -569,9 +507,12 @@ require('which-key').register({
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
 require('mason').setup()
-require('mason-lspconfig').setup()
+--require('mason-lspconfig').setup()
 
 local servers = {
+  remark_ls = {
+    disabled = true
+  },
   gopls = {},
   tsserver = {},
   eslint = {},
@@ -604,22 +545,27 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Ensure the servers above are installed
-local mason_lspconfig = require 'mason-lspconfig'
 
-mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
-}
+-- TODO: fix me
+-- Something in the mason_lspconfig is forcing Remark onto markdown files
+-- Causes errors on ever keystroke in .md 
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-    }
-  end,
-}
+--local mason_lspconfig = require 'mason-lspconfig'
+
+--mason_lspconfig.setup {
+--  ensure_installed = vim.tbl_keys(servers),
+--}
+
+--mason_lspconfig.setup_handlers {
+--  function(server_name)
+--    require('lspconfig')[server_name].setup {
+--      capabilities = capabilities,
+--      on_attach = on_attach,
+--      settings = servers[server_name],
+--      filetypes = (servers[server_name] or {}).filetypes,
+--    }
+--  end,
+--}
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`

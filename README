@@ -7,3 +7,4 @@ This config sets the `<leader>` to a single whitespace by default.
 
 - `<leader>e` - Toggle nvim-tree (file [e]xplorer)
 - `<leader>sf` - [s]earch for [f]iles by name 
+
