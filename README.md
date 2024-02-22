@@ -42,3 +42,5 @@ I'm using [iTerm2](https://iterm2.com/) after using the default terminal for the
 3. In the new "Preferences" window, select the "Colors" tab.
 4. Change the Background color to `#1F1F1F` 
 
+
+
