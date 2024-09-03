@@ -6,6 +6,7 @@
 --         █         █         █       █         █    ▐    ▐      
 --         ▐         ▐         ▐       ▐         ▐                
 
+-- @diagnostic disable: undefined-global
 -- line nums
 vim.opt.number = true
 
@@ -30,10 +31,6 @@ vim.opt.shiftwidth = 2
 
 -- convert tabs to spaces
 vim.opt.expandtab = true
-
--- set the num of spaces a <Tab> counts for while editing
--- vim.opt.softtabstop = 2
-
 
 -- ▄▀▀▀▀▄      ▄▀▀█▄   ▄▀▀▀▀▄   ▄▀▀▄ ▀▀▄ 
 --█    █      ▐ ▄▀ ▀▄ █     ▄▀ █   ▀▄ ▄▀ 
@@ -63,7 +60,10 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    -- add your plugins here
+    {
+      "williamboman/mason.nvim",
+      opts = { ensure_installed = { "prettier" } },
+    },
     {
     'nvim-telescope/telescope.nvim', tag = '0.1.8',
       dependencies = { 'nvim-lua/plenary.nvim' }
@@ -88,7 +88,6 @@ require("lazy").setup({
         { "<bs>", desc = "Decrement Selection", mode = "x" },
       },
       opts_extend = { "ensure_installed" },
-      ---@type TSConfig
       ---@diagnostic disable-next-line: missing-fields
       opts = {
         highlight = { enable = true },
@@ -114,7 +113,6 @@ require("lazy").setup({
           "yaml",
        },
     },
-      ---@param opts TSConfig
       config = function(_, opts)
         if type(opts.ensure_installed) == "table" then
           opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
@@ -127,9 +125,73 @@ require("lazy").setup({
       opts = {},
     },
     {
-      "folke/tokyonight.nvim",
+      "VidocqH/lsp-lens.nvim",
+      opts = {}
+    },
+    {
+      "askfiy/visual_studio_code",
+      priority = 100,
+      config = function()
+        vim.cmd([[colorscheme visual_studio_code]])
+      end,
+    },
+    {
+      "amrbashir/nvim-docs-view",
       lazy = true,
-      opts = { style = "moon" },
+      cmd = "DocsViewToggle",
+      opts = {
+        position = "right",
+        width = 60
+      }
+    },
+    {
+      "ellisonleao/glow.nvim",
+      config = true,
+      cmd = "Glow"
+    },
+    {
+      "neovim/nvim-lspconfig",
+      dependencies = {
+        "williamboman/mason.nvim",
+      },
+      config = function()
+        local lspconfig = require("lspconfig")
+        local mason = require("mason")
+
+        mason.setup()
+
+        lspconfig.denols.setup({})
+
+        -- `npm i -g bash-language-server`
+        lspconfig.bashls.setup({})
+        lspconfig.gopls.setup({})
+
+        lspconfig.css_variables.setup({})
+
+        -- `npm i -g vscode-langservers-extracted`
+        lspconfig.html.setup({})
+
+        -- https://luals.github.io/#neovim-install
+        --lspconfig.lua_ls.setup({})
+
+        lspconfig.postgres_lsp.setup({})
+
+        -- `npm install -g @tailwindcss/language-server`
+        lspconfig.tailwindcss.setup({})
+
+        -- `npm install -g typescript typescript-language-server`
+        lspconfig.tsserver.setup({})
+      end,
+    },
+    {
+      "nvim-neo-tree/neo-tree.nvim",
+      branch = "v3.x",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+        "MunifTanjim/nui.nvim",
+        -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
+      }
     }
   },
   -- automatically check for plugin updates
@@ -146,8 +208,16 @@ require("lazy").setup({
 -- ▐        ▐    ▐    ▐                
 
 
-vim.cmd("colorscheme tokyonight-night")
-
+-- Highlight when yanking (copying) text
+--  Try it with `yap` in normal mode
+--  See `:help vim.highlight.on_yank()`
+vim.api.nvim_create_autocmd('TextYankPost', {
+  desc = 'Highlight when yanking (copying) text',
+  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+  callback = function()
+    vim.highlight.on_yank()
+  end,
+})
 
 -- ▄▀▀▄ █  ▄▀▀█▄▄▄▄  ▄▀▀▄ ▀▀▄      ▄▀▀▄ ▄▀▄  ▄▀▀█▄   ▄▀▀▄▀▀▀▄  ▄▀▀▀▀▄ 
 --█  █ ▄▀ ▐  ▄▀   ▐ █   ▀▄ ▄▀     █  █ ▀  █ ▐ ▄▀ ▀▄ █   █   █ █ █   ▐ 
@@ -165,9 +235,32 @@ vim.keymap.set('n', '<leader>sh', builtin.help_tags, {})
 vim.keymap.set('n', '<leader>gc', builtin.git_commits, {})
 vim.keymap.set('n', '<leader>gb', builtin.git_branches, {})
 
-
 -- check leader
 vim.keymap.set('n', '<leader>t', ':echo "Hola, Mundo!"<CR>')
 
+-- supposed to count but i cant get it to work 
+require'lsp-lens'.setup({
+  sections = {
+    definition = function(count)
+        return "defs: " .. count
+    end,
+    references = function(count)
+        return "refs: " .. count
+    end,
+    implements = function(count)
+        return "used: " .. count
+    end,
+    git_authors = function(latest_author, count)
+        return "-" .. latest_author .. (count - 1 == 0 and "" or (" + " .. count - 1))
+    end,
+  }
+})
+
+-- glow for md view
+require('glow').setup({
+  width_ratio = 1,
+  height_ratio = 1,
+  border = 'rounded'
+})
 
 -- https://patorjk.com/software/taag/#p=author&h=3&v=2&f=THIS&t=Hola
